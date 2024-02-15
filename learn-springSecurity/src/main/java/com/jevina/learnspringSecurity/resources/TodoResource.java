@@ -31,7 +31,8 @@ public class TodoResource{
 		}
 	
 	@GetMapping("/users/{username}/todos")
-	@PreAuthorize("hasRole('USER') and '#username' == authentication.principal.username") 	//shows result only if authenticated username matches
+	//@PreAuthorize("hasRole('USER') and '#username' == authentication.principal.username") 		//#username isn't working
+	@PreAuthorize("hasRole('USER') and 'jevina' == authentication.principal.username") 				//shows result only if authenticated username matches
 	@PostAuthorize("returnObject.username == 'jevina'")						//the return object must contain username same , else will show error
 	@RolesAllowed({"ADMIN","USER"})
 	@Secured({"ROLE_ADMIN","ROLE_USER"})

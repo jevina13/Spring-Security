@@ -20,9 +20,13 @@ public class JwtAuthenticationResource {
 	}
 	
 	@PostMapping("/authenticate") 
-	public Authentication authenticate(Authentication authentication) {
-		return authentication;
+	public JwtResponse authenticate(Authentication authentication) {
+		return new JwtResponse(createToken(authentication));
 	} 
+	
+	record JwtResponse(String token) {
+		
+	}
 	
 	private String createToken(Authentication authentication) {
 		var claims = JwtClaimsSet.builder()

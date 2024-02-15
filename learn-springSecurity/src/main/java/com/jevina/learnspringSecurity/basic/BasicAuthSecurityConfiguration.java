@@ -8,36 +8,50 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.config.Customizer.withDefaults;
 
-//@Configuration
+
+@Configuration
+@EnableMethodSecurity(jsr250Enabled = true)
 public class BasicAuthSecurityConfiguration {
 
 	@Bean
-	SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		
 		http.authorizeHttpRequests(
-				(requests) -> 
-					requests.anyRequest().authenticated());
+						auth -> {
+							auth
+							.requestMatchers("/users").hasRole("USER")
+							.requestMatchers("/admin/**").hasRole("ADMIN")
+							.anyRequest().authenticated();
+							
+						});
+	
 		http.sessionManagement(
-				session -> 
-					session.sessionCreationPolicy(
-							SessionCreationPolicy.STATELESS)
-				);
-		//http.formLogin(withDefaults());
+						session -> 
+							session.sessionCreationPolicy(
+									SessionCreationPolicy.STATELESS)
+						);
+		
+		//http.formLogin();
 		http.httpBasic(withDefaults());
+
 		http.csrf(csrf -> csrf.disable());
-		
+
+		//http.csrf(AbstractHttpConfigurer::disable);
+
 		http.headers(headers -> headers.frameOptions(frameOptionsConfig-> frameOptionsConfig.disable()));
-		
+		// http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));	
 		return http.build();
 	}
 	
